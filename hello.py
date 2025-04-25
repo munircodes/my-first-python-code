@@ -1,23 +1,40 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 
-# Set up ChromeDriver path
+# Setup
+search_terms = ["Python tutorial", "Selenium automation", "GitHub basics", "VS Code shortcuts"]
 service = Service("C:/Users/huria/My git projects/my-first-python-code/chromedriver.exe")
 driver = webdriver.Chrome(service=service)
 
-# Open Google
-driver.get("https://www.google.com")
-time.sleep(2)  # Wait for page to load
+for term in search_terms:
+    driver.get("https://www.google.com")
+    time.sleep(2)  # Let page load
 
-# Find the search box and type a query
-search_box = driver.find_element(By.NAME, "q")
-search_box.send_keys("Selenium tutorial")
-search_box.submit()  # Press Enter
+    search_box = driver.find_element(By.NAME, "q")
+    search_box.clear()
 
-time.sleep(5)  # Let results load
+    # Type slowly like a human
+    for char in term:
+        search_box.send_keys(char)
+        time.sleep(0.2)  # 200ms delay between characters
 
-# End of script
-input("Press Enter to close browser...")
+    search_box.send_keys(Keys.RETURN)
+
+    try:
+        # Wait until results are visible (e.g. result stats or result links)
+        WebDriverWait(driver, 60).until(
+            EC.presence_of_element_located((By.ID, "search"))
+        )
+        print(f"✅ Search results loaded for: {term}")
+    except:
+        print(f"⚠️ Timed out waiting for results of: {term}")
+
+    time.sleep(2)  # small pause before next search
+
+# End
 driver.quit()
